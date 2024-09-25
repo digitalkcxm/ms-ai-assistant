@@ -1,0 +1,6 @@
+export type EnvVars = {
+  GCLOUD_SERVICE_ACCOUNT_EMAIL: string;
+  GCLOUD_SERVICE_ACCOUNT_PRIVATE_KEY: string;
+  GCLOUD_PROJECT_ID: string;
+  GCLOUD_LOCATION: string;
+};
