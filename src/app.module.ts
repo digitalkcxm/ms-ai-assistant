@@ -2,12 +2,16 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { VertexAIModule } from './vertex-ai.module';
-import { EnvVars } from './env-vars';
+import { VertexAIModule } from './modules/vertex-ai/vertex-ai.module';
+import { EnvVars } from './config/env-vars';
+import { DatabaseModule } from './modules/database/database.module';
+import { QualityServiceModule } from './modules/quality-service/quality-service.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    QualityServiceModule,
     VertexAIModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService<EnvVars>) => ({

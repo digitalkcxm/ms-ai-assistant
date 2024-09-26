@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { VertexAIService } from './vertex-ai.service';
+import { VertexAIService } from './modules/vertex-ai/vertex-ai.service';
 
 @Injectable()
 export class AppService {
@@ -14,8 +14,10 @@ export class AppService {
 
     const aggregatedResponse = await streamResponse.response;
 
-    return aggregatedResponse?.candidates?.flatMap((candidate) =>
-      candidate?.content?.parts?.flatMap((part) => part.text.split('\n\n')),
-    );
+    return aggregatedResponse;
+
+    //?.candidates?.flatMap((candidate) =>
+    //   candidate?.content?.parts?.flatMap((part) => part.text.split('\n\n')),
+    // );
   }
 }
