@@ -46,7 +46,7 @@ export class QualityServiceGroupEntity {
   })
   goals: QualityServiceGoalEntity[];
 
-  @OneToMany(() => QualityServiceSurveyEntity, (entity) => entity.category, {
+  @OneToMany(() => QualityServiceSurveyEntity, (entity) => entity.group, {
     cascade: true,
   })
   surveys: QualityServiceSurveyEntity[];

@@ -8,6 +8,10 @@ export type EnvVars = {
   DB_PASSWORD: string;
   DB_DATABASE: string;
 
+  REDIS_HOST: string;
+  REDIS_PORT: number;
+  REDIS_PROTOCOL_EX: number;
+
   GCLOUD_SERVICE_ACCOUNT_EMAIL: string;
   GCLOUD_SERVICE_ACCOUNT_PRIVATE_KEY: string;
   GCLOUD_PROJECT_ID: string;

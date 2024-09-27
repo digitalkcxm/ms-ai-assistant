@@ -19,8 +19,8 @@ export class QualityServiceGoalEntity {
   @Column({ type: 'text' })
   instruction: string;
 
-  @Column()
-  referenceId: string;
+  @Column({ nullable: true })
+  referenceId?: string;
 
   @Column()
   companyToken: string;

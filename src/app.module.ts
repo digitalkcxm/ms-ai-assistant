@@ -6,6 +6,9 @@ import { VertexAIModule } from './modules/vertex-ai/vertex-ai.module';
 import { EnvVars } from './config/env-vars';
 import { DatabaseModule } from './modules/database/database.module';
 import { QualityServiceModule } from './modules/quality-service/quality-service.module';
+import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
 
 @Module({
   imports: [
@@ -30,6 +33,20 @@ import { QualityServiceModule } from './modules/quality-service/quality-service.
           location: configService.getOrThrow<string>('GCLOUD_LOCATION'),
         },
       }),
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<EnvVars>) => ({
+        prefix: 'ai-assistant',
+        connection: {
+          host: configService.getOrThrow<string>('REDIS_HOST'),
+          port: configService.getOrThrow<number>('REDIS_PORT'),
+        },
+      }),
+    }),
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
     }),
   ],
   controllers: [AppController],

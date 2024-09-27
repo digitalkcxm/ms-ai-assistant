@@ -4,43 +4,55 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom, map } from 'rxjs';
 import { convert } from 'html-to-text';
-
-type ApiCoreMessage = {
-  id: string;
-  ticket_id: string;
-  type: string;
-  message: string;
-  source: string;
-  created_at: string;
-};
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import type { ApiCoreMessage } from '../dtos';
 
 @Injectable()
 export class QualityServiceAnalyzeService {
   constructor(
     private readonly configService: ConfigService<EnvVars>,
     private readonly httpService: HttpService,
+    @InjectQueue('quality_service_tickets') private queue: Queue,
   ) {}
 
   async analyzeTicket(ticketId: string, apiCoreUrl: string) {
-    const messages = await lastValueFrom(
-      this.httpService
-        .get<ApiCoreMessage[]>(`api/v2/ticket/internal/${ticketId}/messages`, {
-          baseURL: apiCoreUrl,
-        })
-        .pipe(
-          map(({ data }) => data),
-          map((data) =>
-            data.map((message) => {
-              return {
-                ...message,
-                message: convert(message.message),
-              };
-            }),
+    const [ticket, messages] = await Promise.all([
+      lastValueFrom(
+        this.httpService
+          .get<any>(`api/v2/tickets/${ticketId}`, {
+            baseURL: this.configService.getOrThrow<string>('MS_WORKFLOW_V2'),
+          })
+          .pipe(map(({ data }) => data)),
+      ),
+      lastValueFrom(
+        this.httpService
+          .get<ApiCoreMessage[]>(
+            `api/v2/ticket/internal/${ticketId}/messages`,
+            {
+              baseURL: apiCoreUrl,
+            },
+          )
+          .pipe(
+            map(({ data }) => data),
+            map((data) =>
+              data.map((message) => {
+                return {
+                  ...message,
+                  message: convert(message.message),
+                };
+              }),
+            ),
           ),
-        ),
-    );
+      ),
+    ]);
 
-    return messages;
+    await this.queue.add('analyze', {
+      ticket,
+      messages,
+    });
+
+    return { ticket, messages };
   }
 
   async analyzeWorkflowTickets(
