@@ -10,12 +10,15 @@ import {
 } from './entities';
 import {
   QualityServiceCategoryController,
+  QualityServiceController,
   QualityServiceSurveyController,
 } from './controllers';
 import {
+  QualityServiceAnalyzeService,
   QualityServiceCategoryService,
   QualityServiceSurveyService,
 } from './services';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -27,11 +30,17 @@ import {
       QualityServiceSurveyEntity,
       QualityServiceSurveyAnswerEntity,
     ]),
+    HttpModule,
   ],
   controllers: [
+    QualityServiceController,
     QualityServiceCategoryController,
     QualityServiceSurveyController,
   ],
-  providers: [QualityServiceCategoryService, QualityServiceSurveyService],
+  providers: [
+    QualityServiceAnalyzeService,
+    QualityServiceCategoryService,
+    QualityServiceSurveyService,
+  ],
 })
 export class QualityServiceModule {}

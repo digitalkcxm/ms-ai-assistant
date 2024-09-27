@@ -12,4 +12,6 @@ export type EnvVars = {
   GCLOUD_SERVICE_ACCOUNT_PRIVATE_KEY: string;
   GCLOUD_PROJECT_ID: string;
   GCLOUD_LOCATION: string;
+
+  MS_WORKFLOW_V2: string;
 };
