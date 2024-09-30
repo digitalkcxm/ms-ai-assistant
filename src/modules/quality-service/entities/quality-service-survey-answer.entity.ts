@@ -20,7 +20,7 @@ export class QualityServiceSurveyAnswerEntity {
   rawOutput: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  answer: string;
+  answer: any;
 
   @Column()
   referenceId: string;

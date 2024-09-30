@@ -4,7 +4,12 @@ import {
   HarmCategory,
   VertexAI,
 } from '@google-cloud/vertexai';
-import type { ModelParams, Part, TextPart } from '@google-cloud/vertexai';
+import type {
+  Content,
+  ModelParams,
+  Part,
+  TextPart,
+} from '@google-cloud/vertexai';
 import {
   VERTEX_AI_MODULE_OPTIONS_TOKEN,
   VertexAIModuleOptions,
@@ -16,10 +21,14 @@ export class VertexAIService {
     @Inject(VERTEX_AI_MODULE_OPTIONS_TOKEN)
     moduleOptions: VertexAIModuleOptions,
   ) {
-    this.vertexAI = new VertexAI(moduleOptions.vertexOptions);
+    this.moduleOptions = moduleOptions;
   }
 
-  private readonly vertexAI: VertexAI;
+  private readonly moduleOptions: VertexAIModuleOptions;
+
+  private get vertexAI() {
+    return new VertexAI(this.moduleOptions.vertexOptions);
+  }
 
   async generateContentStream(
     instructions: string[],
@@ -83,5 +92,43 @@ export class VertexAIService {
     });
 
     return streamResponse;
+  }
+
+  async chat(
+    inputs: string[],
+    chatHistory: Content[],
+    model: string,
+    generativeModelOptions?: Omit<ModelParams, 'model'>,
+  ) {
+    const chat = this.vertexAI.preview
+      .getGenerativeModel({
+        model,
+        ...(generativeModelOptions || {}),
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
+          },
+          {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.BLOCK_NONE,
+          },
+        ],
+      })
+      .startChat({
+        history: chatHistory,
+      });
+
+    const { response } = await chat.sendMessage(inputs);
+
+    return response;
   }
 }

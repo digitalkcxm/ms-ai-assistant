@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { VertexAIModule } from './modules/vertex-ai/vertex-ai.module';
 import { EnvVars } from './config/env-vars';
@@ -49,7 +47,5 @@ import { ExpressAdapter } from '@bull-board/express';
       adapter: ExpressAdapter,
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

@@ -14,7 +14,7 @@ export class QualityServiceController {
     private readonly qualityServiceAnalyzeService: QualityServiceAnalyzeService,
   ) {}
 
-  @Post('ticket/:ticketId')
+  @Post('ticket/:ticketId/analysis')
   analyzeTicket(
     @Param('ticketId') ticketId: string,
     @Query('apiCoreUrl') apiCoreUrl: string,
@@ -23,13 +23,13 @@ export class QualityServiceController {
       throw new BadRequestException('apiCoreUrl is required');
     }
 
-    return this.qualityServiceAnalyzeService.analyzeTicket(
+    return this.qualityServiceAnalyzeService.enqueueTicketAnalysis(
       ticketId,
       apiCoreUrl,
     );
   }
 
-  @Post('workflow/:workflowId')
+  @Post('workflow/:workflowId/analysis')
   analyzeWorkflowTickets(
     @Headers('Authorization') companyToken: string,
     @Param('workflowId') workflowId: string,
@@ -41,7 +41,7 @@ export class QualityServiceController {
       throw new BadRequestException('companyToken is required');
     }
 
-    return this.qualityServiceAnalyzeService.analyzeWorkflowTickets(
+    return this.qualityServiceAnalyzeService.enqueueWorkflowTicketsAnalysis(
       dateStart,
       dateEnd,
       workflowId,
