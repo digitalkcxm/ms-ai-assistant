@@ -140,6 +140,7 @@ export class QualityServiceAnalyzeService {
           instructions: true,
           samplingPercentage: true,
           referenceId: true,
+          companyToken: true,
           goals: {
             id: true,
             instruction: true,

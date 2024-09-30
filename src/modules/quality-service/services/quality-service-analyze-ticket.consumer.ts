@@ -39,11 +39,14 @@ export class QualityServiceAnalyzeTicketConsumer extends WorkerHost {
   }
 
   async analyzeTicket({ ticket, messages, settings }: JobData) {
+    if (!messages.length) {
+      return { message: 'No messages to analyze' };
+    }
+
     const model = 'gemini-1.5-flash-002';
 
     const instructions = [];
     instructions.push(
-      // 'Inicie uma nova conversa a partir daqui, nao responda nada que nao sejam OBJETIVOS e FORMULÁRIO',
       settings.goals.length ? 'OBJETIVOS:' : '',
       ...settings.goals?.map((goal) => goal.instruction),
       settings.surveys.length ? 'FORMULÁRIO' : '',
@@ -52,7 +55,7 @@ export class QualityServiceAnalyzeTicketConsumer extends WorkerHost {
           `${survey.question} (Categoria: ${survey.category?.name || 'Sem categoria'} | Peso: ${survey.weight || 1})`,
       ),
       settings.instructions,
-      'Retorne tudo em formato json, separando FORMULÁRIO e OBJETIVOS e com os campos pergunta e resposta em cada node, sem formatação',
+      'Retorne tudo em um único json. Uma lista de FORMULÁRIO com os campos pergunta e resposta. Uma de lista de OBJETIVOS com os campos description, que terá o valor do objetivo e outro com a sua resposta',
     );
 
     const chatHistory: Content[] = [
@@ -64,10 +67,11 @@ export class QualityServiceAnalyzeTicketConsumer extends WorkerHost {
         .filter((i) => !!i.message)
         .flatMap<Content>((message) => [
           {
-            role: message.source === 'operator' ? 'model' : 'user',
+            role: 'user',
             parts: [
-              { text: message.created_at },
-              { text: message.message?.replaceAll('\n', ' ') },
+              { text: `Mensagem enviada pelo ${message.source}` },
+              { text: `às ${message.created_at}` },
+              { text: `Mensagem: ${message.message?.replaceAll('\n', ' ')}` },
             ],
           },
         ]),
