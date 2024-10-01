@@ -40,6 +40,11 @@ import { ExpressAdapter } from '@bull-board/express';
           host: configService.getOrThrow<string>('REDIS_HOST'),
           port: configService.getOrThrow<number>('REDIS_PORT'),
         },
+        defaultJobOptions: {
+          attempts: 3,
+          removeOnComplete: 10,
+          removeOnFail: false,
+        },
       }),
     }),
     BullBoardModule.forRoot({
