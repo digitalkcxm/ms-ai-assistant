@@ -3,10 +3,8 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom, map } from 'rxjs';
-import { convert } from 'html-to-text';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
-import type { ApiCoreMessage } from '../dtos';
 import { QualityServiceGroupEntity } from '../entities';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -33,38 +31,15 @@ export class QualityServiceAnalyzeService {
     ticketInput?: any,
     settingsInput?: QualityServiceGroupEntity,
   ) {
-    const [ticket, messages] = await Promise.all([
-      ticketInput
-        ? Promise.resolve(ticketInput)
-        : lastValueFrom(
-            this.httpService
-              .get<any>(`api/v2/tickets/${ticketId}`, {
-                baseURL:
-                  this.configService.getOrThrow<string>('MS_WORKFLOW_V2'),
-              })
-              .pipe(map(({ data }) => data)),
-          ),
-      lastValueFrom(
-        this.httpService
-          .get<ApiCoreMessage[]>(
-            `api/v2/ticket/internal/${ticketId}/messages`,
-            {
-              baseURL: apiCoreUrl,
-            },
-          )
-          .pipe(
-            map(({ data }) => data),
-            map((data) =>
-              data.map((message) => {
-                return {
-                  ...message,
-                  message: convert(message.message),
-                };
-              }),
-            ),
-          ),
-      ),
-    ]);
+    const ticket = await (ticketInput
+      ? Promise.resolve(ticketInput)
+      : lastValueFrom(
+          this.httpService
+            .get<any>(`api/v2/tickets/${ticketId}`, {
+              baseURL: this.configService.getOrThrow<string>('MS_WORKFLOW_V2'),
+            })
+            .pipe(map(({ data }) => data)),
+        ));
 
     const settings =
       settingsInput ??
@@ -101,12 +76,12 @@ export class QualityServiceAnalyzeService {
       }));
 
     await this.queue.add('analyze', {
-      ticket,
-      messages,
+      ticketId: ticket.id,
+      apiCoreUrl,
       settings,
     });
 
-    return { ticket, messages, settings };
+    return { ticket, apiCoreUrl, settings };
   }
 
   async enqueueWorkflowTicketsAnalysis(
@@ -127,6 +102,7 @@ export class QualityServiceAnalyzeService {
             params: {
               dateStart,
               dateEnd,
+              open: false,
             },
           })
           .pipe(map(({ data }) => data)),

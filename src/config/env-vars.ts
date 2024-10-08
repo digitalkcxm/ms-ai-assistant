@@ -10,6 +10,7 @@ export type EnvVars = {
 
   REDIS_HOST: string;
   REDIS_PORT: number;
+  REDIS_PASSWORD: string;
   REDIS_PROTOCOL_EX: number;
 
   GCLOUD_SERVICE_ACCOUNT_EMAIL: string;

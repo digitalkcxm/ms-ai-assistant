@@ -39,9 +39,10 @@ import { ExpressAdapter } from '@bull-board/express';
         connection: {
           host: configService.getOrThrow<string>('REDIS_HOST'),
           port: configService.getOrThrow<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
         },
         defaultJobOptions: {
-          attempts: 3,
+          attempts: 2,
           removeOnComplete: 10,
           removeOnFail: false,
         },

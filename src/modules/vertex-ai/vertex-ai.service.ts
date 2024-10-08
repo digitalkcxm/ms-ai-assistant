@@ -103,7 +103,13 @@ export class VertexAIService {
     const chat = this.vertexAI.preview
       .getGenerativeModel({
         model,
-        ...(generativeModelOptions || {}),
+        ...(generativeModelOptions || {
+          generationConfig: {
+            maxOutputTokens: 8192,
+            temperature: 1,
+            topP: 0.95,
+          },
+        }),
         safetySettings: [
           {
             category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,

@@ -36,7 +36,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       synchronize: true,
       useUTC: true,
       namingStrategy: new SnakeNamingStrategy(),
-      logging: true,
+      logging: false,
       entitySkipConstructor: false,
       migrationsRun: false,
       entities: [
