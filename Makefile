@@ -5,4 +5,4 @@ start:
 exec:
 	- docker exec -it ms-ai-assistant-container /bin/sh
 logs:
-	- docker logs -f --tail 50 --timestamps ms-ai-assistant-container%%
+	- docker logs -f --tail 50 --timestamps ms-ai-assistant-container
